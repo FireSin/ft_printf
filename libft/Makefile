@@ -1,37 +1,34 @@
 NAME = libft.a
-
-HEAD = -I libft.h
-
-SRC_BONUS = $(wildcard *bonus.c)
-
-SRC = $(filter-out $(SRC_BONUS), $(wildcard *.c))
-
-OBJS = $(patsubst %.c,%.o, $(SRC))
-
-OBJS_BONUS = $(patsubst %.c,%.o, $(SRC_BONUS))
+HEADER = libft.h
+CC = gcc
+SRC_DIR = srcs
+OBJDIR = objs
+HEADDIR = includes
+SRC = $(wildcard $(SRC_DIR)/*.c)
+OBJ = $(addprefix $(OBJDIR)/,$(notdir $(SRC:.c=.o)))
 
 FLAGS = -Wall -Wextra -Werror
 
-RM = rm -f
+all: $(NAME)
 
-all : $(NAME)
+$(OBJDIR)/%.o :	$(SRC_DIR)/%.c $(HEADDIR)/$(HEADER)
+	@$(CC) $(FLAGS) -I $(HEADDIR)/$(HEADER) -c $< -o $@
 
-%.o : %.c %.h
-	gcc $(FLAGS) $(HEAD) -c $< -o $@
+$(NAME): $(OBJDIR) $(OBJ)
+	@ar rcs $(NAME) $(OBJ)
+	@ranlib $(NAME)
+	@echo "\033[32mlibft compile"
 
-$(NAME) : $(OBJS)
-	ar rs $(NAME) $(OBJS) $?
+$(OBJDIR):
+	@if [ ! -d $(OBJDIR) ] ; then mkdir $(OBJDIR); fi;
 
-bonus : $(OBJS_BONUS)
-	ar rs $(NAME) $(OBJS_BONUS) $?
+clean:
+	@if [ -d $(OBJDIR) ] ; then rm -r $(OBJDIR); fi
+	@echo "\033[32mclean libft done"
 
+fclean: clean
+	@rm -f $(NAME)
 
-clean :
-	$(RM) $(OBJS) $(OBJS_BONUS)
+re: fclean all
 
-fclean : clean
-	$(RM) $(NAME)
-
-re : fclean all bonus
-
-.PHONY : all clean fclean re bonus
+.PHONY: all clean fclean re
